@@ -4,10 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Make a Journal Bookmark</title>
-    <!--[if
-    lt IE 9]>
-    <script src="/bags/tank/tiddlers/html5.js"></script>
-    <![endif]-->
 <body>
 <h1>Make a Journal Bookmark</h1>
 
@@ -15,35 +11,9 @@
 creating and editing daily journals.</p>
 
 <p><a class="bookmark"></a></p>
-<script src="/bags/tank/tiddlers/jquery.js"></script>
 <script>
-(function($){
-
-    var recipe = window.location.pathname.split('/')[2];
-        search = window.location.search.replace(/.*tank=([^&;]+).*$/, "$1");
-
-    if (!search) {
-        $.ajax({
-            type: 'GET',
-            url: '/recipes/' + recipe,
-            dataType: 'JSON',
-            success: processRecipe,
-            error: stateError
-        });
-    } else {
-        redirect();
-    }
-
-    function stateError() {
-        $('.bookmark').parent().empty().text('Unable to get tank information');
-    }
-
-    function processRecipe(data) {
-        var tank = data.recipe.pop()[0];
-        $('.bookmark').attr('href', window.location.href + '?tank='
-            + encodeURIComponent(tank)).text('Journal Bookmark');
-    }
-
+var search = window.location.search.replace(/.*tank=([^&;]+).*$/, "$1");
+if (search) {
     function redirect() {
         var uri = '/tanks/' + decodeURIComponent(search) + '/';
             date = new Date(),
@@ -54,9 +24,36 @@ creating and editing daily journals.</p>
         mon = mon.length == 1 ? '0' + mon : mon;
         date = date.length == 1 ? '0' + date : date;
         var datestring = year + mon + date;
-        document.location = uri + datestring;
+        window.location.href = uri + datestring;
     }
-})(jQuery);
+    redirect();
+} else {
+    var script = document.createElement('script'); 
+    script.type = 'text/javascript'; 
+    script.src = '/bags/tank/tiddlers/jquery.js';
+    document.body.appendChild(script);
+    window.onload = function() {
+        var recipe = window.location.pathname.split('/')[2];
+
+        $.ajax({
+            type: 'GET',
+            url: '/recipes/' + recipe,
+            dataType: 'JSON',
+            success: processRecipe,
+            error: stateError
+        });
+
+        function stateError() {
+            $('.bookmark').parent().empty().text('Unable to get tank information');
+        }
+
+        function processRecipe(data) {
+            var tank = data.recipe.pop()[0];
+            $('.bookmark').attr('href', window.location.href + '?tank='
+                + encodeURIComponent(tank)).text('Journal Bookmark');
+        }
+    };
+}
 </script>
 </body>
 </html>
